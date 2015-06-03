@@ -8,7 +8,7 @@ use std::ffi::{OsStr, OsString};
 use std::convert::AsRef;
 
 #[derive(Eq, PartialEq)]
-pub enum ExecArg {
+pub enum ExecOption {
     Master { bind_to: String },
     Slave { connect_to: String },
     MultiThread { slaves: u32 },
@@ -35,7 +35,7 @@ macro_rules! try_o {
     })
 }
 
-pub fn try_parse_opts<C: IntoIterator>(args: C) -> Option<ExecArg>
+pub fn try_parse_opts<C: IntoIterator>(args: C) -> Option<ExecOption>
     where C::Item: AsRef<str>
 {
     let opts = build_opts();
@@ -45,7 +45,7 @@ pub fn try_parse_opts<C: IntoIterator>(args: C) -> Option<ExecArg>
 
     let matches = try_o!(opts.parse(args_osstr).ok());
     if matches.opt_present("h") {
-        return Some(ExecArg::Help);
+        return Some(ExecOption::Help);
     }
 
     let master_exist = matches.opt_present("m");
@@ -59,7 +59,7 @@ pub fn try_parse_opts<C: IntoIterator>(args: C) -> Option<ExecArg>
         let slaves = try_o!(matches.opt_str("l"));
         let slaves_num:u32 = try_o!(slaves.parse().ok());
         
-        return Some(ExecArg::MultiThread {
+        return Some(ExecOption::MultiThread {
             slaves: slaves_num,
         });
     } else {
@@ -70,12 +70,12 @@ pub fn try_parse_opts<C: IntoIterator>(args: C) -> Option<ExecArg>
         
         if master_exist {
             let bind = try_o!(matches.opt_str("m"));
-            return Some(ExecArg::Master {
+            return Some(ExecOption::Master {
                 bind_to: bind,
             });
         } else if slave_exist {
             let connect = try_o!(matches.opt_str("s"));
-            return Some(ExecArg::Slave {
+            return Some(ExecOption::Slave {
                 connect_to: connect,
             });
         }
@@ -96,13 +96,13 @@ mod test {
     #[test]
     fn parse_should_correct() {
         assert!(try_parse_opts(&["-h"])
-                == Some(ExecArg::Help));
+                == Some(ExecOption::Help));
         assert!(try_parse_opts(&["-l", "3"])
-                == Some(ExecArg::MultiThread { slaves: 3 }));
+                == Some(ExecOption::MultiThread { slaves: 3 }));
         assert!(try_parse_opts(&["-m", "tcp://*:8888"])
-                == Some(ExecArg::Master { bind_to: "tcp://*:8888".to_string() }));
+                == Some(ExecOption::Master { bind_to: "tcp://*:8888".to_string() }));
         assert!(try_parse_opts(&["-s", "tcp://localhost:8888"])
-                == Some(ExecArg::Slave { connect_to: "tcp://localhost:8888".to_string() }));
+                == Some(ExecOption::Slave { connect_to: "tcp://localhost:8888".to_string() }));
     }
 
     #[test]
