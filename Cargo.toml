@@ -6,3 +6,7 @@ authors = ["SeongChan Lee <foriequal@gmail.com>"]
 [dependencies]
 rand = "*"
 itertools = "*"
+rustc-serialize = "*"
+url = "*"
+zmq = "*"
+getopts = "*"
