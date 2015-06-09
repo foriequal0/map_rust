@@ -12,8 +12,23 @@ pub struct Context {
 }
 
 fn task(config: Config) {
-    println!("Hello!");
-    thread::sleep_ms(1000);
+    let mut context = zmq::Context::new();
+    // TODO: Error handling.
+    let mut responder = context.socket(zmq::REP).unwrap();
+
+    responder.bind(&config.bind).is_ok();
+
+    let mut msg = zmq::Message::new().unwrap();
+    let mut counter = 0;
+    loop {
+        responder.recv(&mut msg, 0).unwrap();
+        println!("Check {}", msg.as_str().unwrap());
+        responder.send_str("World", 0).unwrap();
+        counter += 1;
+        if(counter == 4) {
+            break;
+        }
+    }
 }
 
 pub fn run_thread(config: Config) -> Context {

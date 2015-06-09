@@ -1,32 +1,21 @@
 mod option_helper;
 mod master;
 mod slave;
+mod join_all;
 
 use std::thread;
 use option_helper::*;
-
-trait JoinAll<T> {
-    fn join_all(self) -> Vec<thread::Result<T>>;
-}
-
-impl<T, C: IntoIterator> JoinAll<T> for C
-    where C::Item: Into<thread::JoinHandle<T>> {
-    fn join_all(self) -> Vec<thread::Result<T>>{
-        let all:Vec<_> = self.into_iter()
-            .map(move |v| v.into().join())
-            .collect();
-        return all;
-    }
-}
+use join_all::*;
 
 fn main() {
     let master_config = master::Config {
-        bind: "a".to_string(),
+        bind: "tcp://*:5555".to_string(),
     };
 
     let slave_config = slave::Config {
-        connect: "b".to_string(),
+        connect: "tcp://localhost:5555".to_string(),
         workers: 4,
+        id: 0,
     };
     
     let master = master::run_thread(master_config);
