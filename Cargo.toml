@@ -1,6 +1,6 @@
 [package]
-name = "MapRust"
-version = "0.1.0"
+name = "map_rust"
+version = "0.0.0"
 authors = ["SeongChan Lee <foriequal@gmail.com>"]
 
 [dependencies]

@@ -1,11 +1,7 @@
-mod option_helper;
-mod master;
-mod slave;
-mod join_all;
+extern crate map_rust;
 
-use std::thread;
-use option_helper::*;
-use join_all::*;
+use map_rust::*;
+use map_rust::join_all::*;
 
 fn main() {
     let master_config = master::Config {
